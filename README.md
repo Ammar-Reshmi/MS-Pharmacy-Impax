@@ -1,4 +1,4 @@
-# RoyalMed Pharmaceuticals Quotation Website
+# MSPharmaImpax Pharmaceuticals Quotation Website
 
 A premium React/Vite medicine catalogue + quotation prototype built from the uploaded `Demo data.xlsx`.
 

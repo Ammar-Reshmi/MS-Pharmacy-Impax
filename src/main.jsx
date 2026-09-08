@@ -12,11 +12,11 @@ import "./styles.css";
 import demoProducts from "./data/products.json";
 
 const BRAND = {
-  name: "RoyalMed Pharmaceuticals",
+  name: "MS Pharma Impax",
   address: "Professional Pharmaceutical Supply Division",
-  phone: "+91 00000 00000",
-  email: "sales@royalmed.example",
-  website: "www.royalmed.example"
+  phone: "+91 1234567890",
+  email: "sales@msp Pharma Impax.example",
+  website: "www.msp Pharma Impax.example"
 };
 
 const money = (v) => {
@@ -31,14 +31,14 @@ const parsePrice = (v) => {
 
 function App() {
   const [products, setProducts] = useState(() => {
-    const saved = localStorage.getItem("royalmed-products");
+    const saved = localStorage.getItem("MS Pharma Impax-products");
     return saved ? JSON.parse(saved) : demoProducts;
   });
-  const [quote, setQuote] = useState(() => JSON.parse(localStorage.getItem("royalmed-quote") || "[]"));
+  const [quote, setQuote] = useState(() => JSON.parse(localStorage.getItem("MS Pharma Impax-quote") || "[]"));
   const [mobileOpen, setMobileOpen] = useState(false);
 
-  useEffect(() => localStorage.setItem("royalmed-products", JSON.stringify(products)), [products]);
-  useEffect(() => localStorage.setItem("royalmed-quote", JSON.stringify(quote)), [quote]);
+  useEffect(() => localStorage.setItem("MS Pharma Impax-products", JSON.stringify(products)), [products]);
+  useEffect(() => localStorage.setItem("MS Pharma Impax-quote", JSON.stringify(quote)), [quote]);
 
   const addToQuote = (product) => {
     setQuote(q => {
@@ -97,7 +97,7 @@ function Navbar({quoteCount, mobileOpen, setMobileOpen}) {
     <div className="nav-inner">
       <Link className="brand" to="/">
         <span className="brand-mark"><ShieldCheck size={22}/></span>
-        <span><b>RoyalMed</b><small>PHARMACEUTICALS</small></span>
+        <span><b>MS Pharma Impax</b><small>PHARMACEUTICALS</small></span>
       </Link>
       <button className="mobile-menu" onClick={() => setMobileOpen(!mobileOpen)} aria-label="Menu">{mobileOpen ? <X/> : <Menu/>}</button>
       <nav className={mobileOpen ? "nav-links open" : "nav-links"}>
@@ -128,7 +128,7 @@ function Home({products, addToQuote}) {
         </div>
         <div className="hero-visual">
           <div className="med-orbit orbit-one"></div><div className="med-orbit orbit-two"></div>
-          <div className="bottle"><div className="bottle-cap"></div><div className="bottle-label"><span>ROYALMED</span><strong>Rx</strong><small>PHARMACEUTICAL<br/>SUPPLY</small></div></div>
+          <div className="bottle"><div className="bottle-cap"></div><div className="bottle-label"><span>MS PHARMA IMPAX</span><strong>Rx</strong><small>PHARMACEUTICAL<br/>SUPPLY</small></div></div>
           <div className="floating-card fc-top"><Package size={19}/><div><b>{products.length}</b><small>Catalogue items</small></div></div>
           <div className="floating-card fc-bottom"><FileText size={19}/><div><b>QUOTE</b><small>Professional output</small></div></div>
         </div>
@@ -270,10 +270,10 @@ function Quotation({quote,updateQty,removeQuote,clearQuote}) {
 }
 
 function Admin({products,setProducts,importProducts}) {
-  const [authed,setAuthed]=useState(()=>sessionStorage.getItem("royalmed-admin")==="1");
+  const [authed,setAuthed]=useState(()=>sessionStorage.getItem("MS Pharma Impax-admin")==="1");
   const [editing,setEditing]=useState(null);
   const [password,setPassword]=useState("");
-  const login=(e)=>{e.preventDefault(); if(password==="admin123"){sessionStorage.setItem("royalmed-admin","1");setAuthed(true)}};
+  const login=(e)=>{e.preventDefault(); if(password==="admin123"){sessionStorage.setItem("MS Pharma Impax-admin","1");setAuthed(true)}};
   if(!authed) return <main className="page"><div className="container admin-login"><ShieldCheck size={36}/><span className="kicker">AUTHORIZED ACCESS</span><h1>Admin Portal</h1><p>Demo authentication is enabled for this prototype.</p><form onSubmit={login}><input type="password" value={password} onChange={e=>setPassword(e.target.value)} placeholder="Demo password: admin123"/><button className="btn primary wide">Sign In</button></form></div></main>;
   const save=(p)=>{setProducts(xs=>{const found=xs.some(x=>x.id===p.id);return found?xs.map(x=>x.id===p.id?p:x):[...xs,p]});setEditing(null)};
   const remove=(id)=>setProducts(xs=>xs.filter(x=>x.id!==id));
@@ -290,9 +290,9 @@ function ProductModal({product,onSave,onClose}){
   return <div className="modal-backdrop"><div className="modal"><button className="modal-close" onClick={onClose}><X/></button><span className="kicker">EDIT PRODUCT</span><h2>{p.productName}</h2><div className="form-grid">{fields.map(([k,l])=><label key={k}>{l}<input value={p[k] ?? ""} onChange={e=>setP({...p,[k]:e.target.value})}/></label>)}</div><div className="modal-actions"><button className="btn outline-dark" onClick={onClose}>Cancel</button><button className="btn primary" onClick={()=>onSave(p)}>Save Changes</button></div></div></div>
 }
 
-function About(){return <main className="page"><div className="container narrow"><span className="kicker">ABOUT ROYALMED</span><h1>A catalogue-first approach to pharmaceutical supply.</h1><p className="lead">This demo is designed around professional product discovery and quotation preparation rather than consumer checkout. Product records remain structured, editable and ready for a future database-backed deployment.</p><div className="about-cards"><div><ShieldCheck/><h3>Trust</h3><p>Clear product fields and deliberate handling of unavailable information.</p></div><div><FileText/><h3>Quotations</h3><p>Build, revise, print and export professional quotation documents.</p></div><div><Package/><h3>Maintainable</h3><p>Product data is separated from the interface for easier future imports.</p></div></div></div></main>}
+function About(){return <main className="page"><div className="container narrow"><span className="kicker">ABOUT MS PHARMA IMPAX</span><h1>A catalogue-first approach to pharmaceutical supply.</h1><p className="lead">This demo is designed around professional product discovery and quotation preparation rather than consumer checkout. Product records remain structured, editable and ready for a future database-backed deployment.</p><div className="about-cards"><div><ShieldCheck/><h3>Trust</h3><p>Clear product fields and deliberate handling of unavailable information.</p></div><div><FileText/><h3>Quotations</h3><p>Build, revise, print and export professional quotation documents.</p></div><div><Package/><h3>Maintainable</h3><p>Product data is separated from the interface for easier future imports.</p></div></div></div></main>}
 function Contact(){return <main className="page"><div className="container contact-grid"><div><span className="kicker">CONTACT</span><h1>Professional supply enquiries.</h1><p className="lead">Use this section for your verified company contact details before publishing the site.</p></div><div className="contact-card"><b>{BRAND.name}</b><span>{BRAND.address}</span><span>{BRAND.phone}</span><span>{BRAND.email}</span><span>{BRAND.website}</span></div></div></main>}
 
-function Footer(){return <footer><div className="container footer-grid"><div><div className="brand footer-brand"><span className="brand-mark"><ShieldCheck size={20}/></span><span><b>RoyalMed</b><small>PHARMACEUTICALS</small></span></div><p>Professional medicine catalogue and quotation workflow.</p></div><div><b>Navigation</b><Link to="/medicines">Medicines</Link><Link to="/quotation">Quotation</Link><Link to="/admin">Admin</Link></div><div><b>Important</b><span>Catalogue data must be verified before commercial use.</span><span>Not a substitute for medical advice.</span></div></div><div className="container footer-bottom">© {new Date().getFullYear()} RoyalMed Pharmaceuticals. Demo interface.</div></footer>}
+function Footer(){return <footer><div className="container footer-grid"><div><div className="brand footer-brand"><span className="brand-mark"><ShieldCheck size={20}/></span><span><b>MS Pharma Impax</b><small>PHARMACEUTICALS</small></span></div><p>Professional medicine catalogue and quotation workflow.</p></div><div><b>Navigation</b><Link to="/medicines">Medicines</Link><Link to="/quotation">Quotation</Link><Link to="/admin">Admin</Link></div><div><b>Important</b><span>Catalogue data must be verified before commercial use.</span><span>Not a substitute for medical advice.</span></div></div><div className="container footer-bottom">© {new Date().getFullYear()} MS Pharma Impax Pharmaceuticals. Demo interface.</div></footer>}
 
 createRoot(document.getElementById("root")).render(<BrowserRouter><App/></BrowserRouter>);
