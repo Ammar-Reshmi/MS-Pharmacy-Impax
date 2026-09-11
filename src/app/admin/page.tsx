@@ -1,0 +1,10 @@
+import Link from "next/link";
+import { ArrowRight, BookOpen, ClipboardList, FileText, Users } from "lucide-react";
+import { getDashboardMetrics } from "@/features/admin/queries";
+
+export default async function AdminDashboard() {
+  const metrics = await getDashboardMetrics();
+  const cards = [["Published medicines", metrics.publishedMedicines, BookOpen, "/admin/catalogue"], ["Open requests", metrics.openRequests, ClipboardList, "/admin/quote-requests"], ["Draft quotations", metrics.draftQuotes, FileText, "/admin/quotations"], ["Active staff", metrics.activeStaff, Users, "/admin/staff"]] as const;
+  return <><div><p className="text-xs font-bold tracking-[0.16em] text-teal-700">OPERATIONS OVERVIEW</p><h1 className="mt-2 font-serif text-4xl font-bold text-blue-950">Good morning, keep the workflow moving.</h1><p className="mt-2 text-sm leading-6 text-slate-600">This is the controlled workspace for catalogue, customers, commercial requests, and quotations.</p></div><div className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">{cards.map(([label, value, Icon, href]) => <Link key={label} href={href} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"><Icon size={21} className="text-teal-700" /><p className="mt-6 font-serif text-4xl font-bold text-blue-950">{value}</p><p className="mt-1 text-sm font-semibold text-slate-600">{label}</p></Link>)}</div><section className="mt-8 rounded-2xl bg-blue-950 p-7 text-white"><p className="text-xs font-bold tracking-[0.16em] text-teal-300">V1 OPERATING RULE</p><h2 className="mt-2 font-serif text-2xl font-bold">Published medicine records require verified INR pricing.</h2><p className="mt-2 max-w-2xl text-sm leading-6 text-slate-300">Legacy dollar values remain draft migration data. Review and price them in INR before making them public.</p><Link href="/admin/catalogue" className="mt-5 inline-flex items-center gap-2 text-sm font-bold text-teal-300 hover:text-white">Review catalogue <ArrowRight size={17} /></Link></section></>;
+}
+

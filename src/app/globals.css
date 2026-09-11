@@ -1,0 +1,14 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: Arial, Helvetica, sans-serif;
+  --font-serif: Georgia, Cambria, "Times New Roman", serif;
+}
+
+:root { color-scheme: light; }
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: #f8fafc; color: #0f172a; }
+::selection { background: #99f6e4; color: #134e4a; }
+summary::-webkit-details-marker { display: none; }
+
