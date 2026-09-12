@@ -11,9 +11,9 @@ const links = [
 export function SiteHeader() {
   return <header className="sticky top-0 z-30 border-b border-slate-200/80 bg-white/95 backdrop-blur">
     <div className="mx-auto flex h-18 max-w-7xl items-center justify-between gap-5 px-4 sm:px-6 lg:px-8">
-      <Link href="/" className="group flex items-center gap-3" aria-label="MS Pharma Impax home">
+      <Link href="/" className="group flex items-center gap-3" aria-label="MS Pharma Impex home">
         <span className="grid size-10 place-items-center rounded-xl bg-gradient-to-br from-teal-700 to-blue-950 text-white shadow-sm"><Building2 size={21} /></span>
-        <span className="leading-none"><span className="block font-serif text-lg font-bold tracking-tight text-blue-950">MS Pharma Impax</span><span className="mt-1 block text-[9px] font-bold tracking-[0.18em] text-teal-700">PHARMACEUTICAL SUPPLY</span></span>
+        <span className="leading-none"><span className="block font-serif text-lg font-bold tracking-tight text-blue-950">MS Pharma Impex</span><span className="mt-1 block text-[9px] font-bold tracking-[0.18em] text-teal-700">PHARMACEUTICAL SUPPLY</span></span>
       </Link>
       <nav className="hidden items-center gap-6 lg:flex" aria-label="Main navigation">
         {links.map(([label, href]) => <Link key={href} href={href} className="text-sm font-medium text-slate-600 transition hover:text-teal-700">{label}</Link>)}

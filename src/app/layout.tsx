@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
 export const metadata: Metadata = {
-  title: { default: "MS Pharma Impax | Pharmaceutical Supply", template: "%s | MS Pharma Impax" },
+  title: { default: "MS Pharma Impex | Pharmaceutical Supply", template: "%s | MS Pharma Impex" },
   description: "Professional B2B pharmaceutical catalogue and quotation platform.",
   robots: { index: false, follow: false }
 };
