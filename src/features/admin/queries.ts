@@ -2,7 +2,7 @@ import "server-only";
 
 import { and, count, desc, eq } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
-import { auditLogs, categories, customers, medicinePrices, medicines, quoteRequestItems, quoteRequests, quotations, staffUsers } from "@/db/schema";
+import { auditLogs, businessSettings, categories, customers, medicinePrices, medicines, quoteRequestItems, quoteRequests, quotations, staffUsers } from "@/db/schema";
 
 export async function getDashboardMetrics() {
   if (!isDatabaseConfigured()) return { publishedMedicines: 0, openRequests: 0, draftQuotes: 0, activeStaff: 0 };
@@ -52,10 +52,104 @@ export async function listAdminMedicines() {
     .from(medicines).leftJoin(categories, eq(medicines.categoryId, categories.id)).leftJoin(medicinePrices, and(eq(medicinePrices.medicineId, medicines.id), eq(medicinePrices.isCurrent, true))).orderBy(desc(medicines.updatedAt));
 }
 
-export async function listAuditLogs() {
+export type AdminCategoryItem = {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  active: boolean;
+  createdAt: Date;
+  medicineCount: number;
+};
+
+export type AdminCustomerItem = {
+  id: string;
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  gstin: string | null;
+  active: boolean;
+  createdAt: Date;
+};
+
+export type AdminStaffItem = {
+  id: string;
+  name: string;
+  email: string;
+  role: "super_admin" | "sales" | "catalogue_manager";
+  active: boolean;
+  mfaEnabled: boolean;
+  lastSignedInAt: Date | null;
+  createdAt: Date;
+};
+
+export type AdminAuditLogItem = {
+  id: string;
+  action: string;
+  entityType: string;
+  createdAt: Date;
+  actorName: string | null;
+};
+
+export async function listAuditLogs(): Promise<AdminAuditLogItem[]> {
   if (!isDatabaseConfigured()) return [];
   const db = getDb();
   return db.select({ id: auditLogs.id, action: auditLogs.action, entityType: auditLogs.entityType, createdAt: auditLogs.createdAt, actorName: staffUsers.name })
     .from(auditLogs).leftJoin(staffUsers, eq(auditLogs.actorId, staffUsers.id)).orderBy(desc(auditLogs.createdAt)).limit(100);
 }
+
+export async function listAdminCategories(): Promise<AdminCategoryItem[]> {
+  if (!isDatabaseConfigured()) return [];
+  const db = getDb();
+  return db.select({
+    id: categories.id,
+    name: categories.name,
+    slug: categories.slug,
+    description: categories.description,
+    active: categories.active,
+    createdAt: categories.createdAt,
+    medicineCount: count(medicines.id)
+  }).from(categories)
+    .leftJoin(medicines, eq(medicines.categoryId, categories.id))
+    .groupBy(categories.id)
+    .orderBy(desc(categories.createdAt));
+}
+
+export async function listAdminCustomers(): Promise<AdminCustomerItem[]> {
+  if (!isDatabaseConfigured()) return [];
+  const db = getDb();
+  return db.select({
+    id: customers.id,
+    businessName: customers.businessName,
+    contactName: customers.contactName,
+    email: customers.email,
+    phone: customers.phone,
+    gstin: customers.gstin,
+    active: customers.active,
+    createdAt: customers.createdAt
+  }).from(customers).orderBy(desc(customers.createdAt));
+}
+
+export async function listAdminStaff(): Promise<AdminStaffItem[]> {
+  if (!isDatabaseConfigured()) return [];
+  const db = getDb();
+  return db.select({
+    id: staffUsers.id,
+    name: staffUsers.name,
+    email: staffUsers.email,
+    role: staffUsers.role,
+    active: staffUsers.active,
+    mfaEnabled: staffUsers.mfaEnabled,
+    lastSignedInAt: staffUsers.lastSignedInAt,
+    createdAt: staffUsers.createdAt
+  }).from(staffUsers).orderBy(desc(staffUsers.createdAt));
+}
+
+export async function getAdminBusinessSettings() {
+  if (!isDatabaseConfigured()) return null;
+  const db = getDb();
+  return db.query.businessSettings.findFirst();
+}
+
 

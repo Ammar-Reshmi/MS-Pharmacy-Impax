@@ -36,12 +36,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         const staff = await db.query.staffUsers.findFirst({
           where: eq(staffUsers.email, parsed.data.email.toLowerCase())
         });
-        if (!staff?.active || !(await verifyPassword(staff.passwordHash, parsed.data.password))) return null;
+        if (!staff?.active) return null;
+
+        try {
+          const isValid = await verifyPassword(staff.passwordHash, parsed.data.password);
+          if (!isValid) return null;
+        } catch {
+          return null;
+        }
 
         if (staff.mfaEnabled) {
           if (!staff.mfaSecretEncrypted || !parsed.data.otp) return null;
-          const verification = await verifyTotp({ secret: decryptMfaSecret(staff.mfaSecretEncrypted), token: parsed.data.otp });
-          if (!verification.valid) return null;
+          try {
+            const verification = await verifyTotp({ secret: decryptMfaSecret(staff.mfaSecretEncrypted), token: parsed.data.otp });
+            if (!verification.valid) return null;
+          } catch {
+            return null;
+          }
         }
 
         await db.update(staffUsers).set({ lastSignedInAt: new Date(), updatedAt: new Date() }).where(eq(staffUsers.id, staff.id));

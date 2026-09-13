@@ -9,5 +9,9 @@ test-results/
 .env.*.local
 !.env.example
 *.tsbuildinfo
+*.exe
+drizzle/
+.vscode/
+.idea/
 
 
