@@ -27,7 +27,7 @@ if (!process.env.DATABASE_URL) {
   }
 }
 
-const connectionString = process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/ms_pharma_impax";
+const connectionString = process.env.DATABASE_URL ?? "postgresql://postgres:postgres@localhost:5432/ms_pharma_impex";
 
 async function seed() {
   console.log("Connecting to PostgreSQL...");
@@ -42,8 +42,8 @@ async function seed() {
     if (!existingSettings) {
       console.log("Seeding business settings...");
       await db.insert(schema.businessSettings).values({
-        legalName: "MS Pharma Impax Private Limited",
-        displayName: "MS Pharma Impax",
+        legalName: "MS Pharma Impex Private Limited",
+        displayName: "MS Pharma Impex",
         gstin: "27AABCM1234F1Z5",
         email: "contact@mspharmaimpex.com",
         phone: "+91 22 2345 6789",

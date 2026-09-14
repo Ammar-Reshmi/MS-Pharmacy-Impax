@@ -254,7 +254,7 @@ export const importRows = pgTable("import_rows", {
 export const businessSettings = pgTable("business_settings", {
   id: uuid("id").defaultRandom().primaryKey(),
   legalName: varchar("legal_name", { length: 220 }).notNull(),
-  displayName: varchar("display_name", { length: 120 }).notNull().default("MS Pharma Impax"),
+  displayName: varchar("display_name", { length: 120 }).notNull().default("MS Pharma Impex"),
   gstin: varchar("gstin", { length: 15 }),
   email: varchar("email", { length: 320 }),
   phone: varchar("phone", { length: 30 }),

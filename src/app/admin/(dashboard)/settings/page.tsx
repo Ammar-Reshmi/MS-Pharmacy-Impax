@@ -26,7 +26,7 @@ export default async function AdminSettingsPage() {
               <input
                 name="legalName"
                 required
-                defaultValue={settings?.legalName ?? "MS Pharma Impax Private Limited"}
+                defaultValue={settings?.legalName ?? "MS Pharma Impex Private Limited"}
                 disabled={!canEdit}
                 className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-normal outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-100 disabled:bg-slate-50"
               />
@@ -36,7 +36,7 @@ export default async function AdminSettingsPage() {
               <input
                 name="displayName"
                 required
-                defaultValue={settings?.displayName ?? "MS Pharma Impax"}
+                defaultValue={settings?.displayName ?? "MS Pharma Impex"}
                 disabled={!canEdit}
                 className="min-h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm font-normal outline-none focus:border-teal-700 focus:ring-2 focus:ring-teal-100 disabled:bg-slate-50"
               />

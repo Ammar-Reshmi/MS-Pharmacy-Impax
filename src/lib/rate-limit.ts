@@ -10,7 +10,7 @@ function upstashLimiter(limit: number, window: `${number} m`) {
   return new Ratelimit({
     redis: Redis.fromEnv(),
     limiter: Ratelimit.slidingWindow(limit, window),
-    prefix: "ms-pharma-impax"
+    prefix: "ms-pharma-impex"
   });
 }
 
