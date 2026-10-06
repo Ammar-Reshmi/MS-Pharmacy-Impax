@@ -2,7 +2,7 @@ import "server-only";
 
 import { and, count, desc, eq } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
-import { auditLogs, businessSettings, categories, customers, medicinePrices, medicines, quoteRequestItems, quoteRequests, quotations, staffUsers } from "@/db/schema";
+import { auditLogs, businessSettings, categories, customerAddresses, customers, medicinePrices, medicines, quotationItems, quoteRequestItems, quoteRequests, quotations, staffUsers } from "@/db/schema";
 
 export async function getDashboardMetrics() {
   if (!isDatabaseConfigured()) return { publishedMedicines: 0, openRequests: 0, draftQuotes: 0, activeStaff: 0 };
@@ -151,5 +151,206 @@ export async function getAdminBusinessSettings() {
   const db = getDb();
   return db.query.businessSettings.findFirst();
 }
+
+export type AdminQuoteRequestDetail = {
+  id: string;
+  reference: string;
+  status: string;
+  notes: string | null;
+  createdAt: Date;
+  reviewedAt: Date | null;
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  gstin: string | null;
+  customerId: string;
+  items: Array<{
+    id: string;
+    productName: string;
+    requestedQuantity: number;
+    medicineId: string | null;
+    sku: string | null;
+    strength: string | null;
+    packSize: string | null;
+    dosageForm: string | null;
+    unitPrice: string | null;
+  }>;
+  address?: {
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string;
+    postalCode: string;
+  } | null;
+};
+
+export type AdminQuotationDetail = {
+  id: string;
+  quoteNumber: string;
+  status: string;
+  currency: string;
+  subtotal: string;
+  discount: string;
+  taxTotal: string;
+  grandTotal: string;
+  termsSnapshot: string;
+  validUntil: string;
+  issuedAt: Date | null;
+  createdAt: Date;
+  quoteRequestId: string | null;
+  businessName: string;
+  contactName: string;
+  email: string;
+  phone: string;
+  gstin: string | null;
+  customerId: string;
+  items: Array<{
+    id: string;
+    quotationId: string;
+    medicineId: string | null;
+    skuSnapshot: string | null;
+    productNameSnapshot: string;
+    strengthSnapshot: string | null;
+    packSizeSnapshot: string | null;
+    quantity: number;
+    unitPrice: string;
+    gstRate: string;
+    lineTotal: string;
+    createdAt: Date;
+  }>;
+  address?: {
+    line1: string;
+    line2: string | null;
+    city: string;
+    state: string;
+    postalCode: string;
+    country: string;
+  } | null;
+};
+
+export async function getAdminQuoteRequest(id: string): Promise<AdminQuoteRequestDetail | null> {
+  if (!isDatabaseConfigured()) return null;
+  const db = getDb();
+  const request = await db
+    .select({
+      id: quoteRequests.id,
+      reference: quoteRequests.reference,
+      status: quoteRequests.status,
+      notes: quoteRequests.notes,
+      createdAt: quoteRequests.createdAt,
+      reviewedAt: quoteRequests.reviewedAt,
+      businessName: customers.businessName,
+      contactName: customers.contactName,
+      email: customers.email,
+      phone: customers.phone,
+      gstin: customers.gstin,
+      customerId: customers.id
+    })
+    .from(quoteRequests)
+    .innerJoin(customers, eq(quoteRequests.customerId, customers.id))
+    .where(eq(quoteRequests.id, id))
+    .limit(1);
+
+  if (!request[0]) return null;
+
+  const [items, address] = await Promise.all([
+    db
+      .select({
+        id: quoteRequestItems.id,
+        productName: quoteRequestItems.productName,
+        requestedQuantity: quoteRequestItems.requestedQuantity,
+        medicineId: quoteRequestItems.medicineId,
+        sku: medicines.sku,
+        strength: medicines.strength,
+        packSize: medicines.packSize,
+        dosageForm: medicines.dosageForm,
+        unitPrice: medicinePrices.unitPrice
+      })
+      .from(quoteRequestItems)
+      .leftJoin(medicines, eq(quoteRequestItems.medicineId, medicines.id))
+      .leftJoin(
+        medicinePrices,
+        and(eq(medicinePrices.medicineId, medicines.id), eq(medicinePrices.isCurrent, true))
+      )
+      .where(eq(quoteRequestItems.quoteRequestId, id)),
+    db.query.customerAddresses.findFirst({
+      where: eq(customerAddresses.customerId, request[0].customerId)
+    })
+  ]);
+
+  return {
+    ...request[0],
+    items,
+    address: address
+      ? {
+          line1: address.line1,
+          line2: address.line2,
+          city: address.city,
+          state: address.state,
+          postalCode: address.postalCode
+        }
+      : null
+  };
+}
+
+export async function getAdminQuotation(id: string): Promise<AdminQuotationDetail | null> {
+  if (!isDatabaseConfigured()) return null;
+  const db = getDb();
+  const quotation = await db
+    .select({
+      id: quotations.id,
+      quoteNumber: quotations.quoteNumber,
+      status: quotations.status,
+      currency: quotations.currency,
+      subtotal: quotations.subtotal,
+      discount: quotations.discount,
+      taxTotal: quotations.taxTotal,
+      grandTotal: quotations.grandTotal,
+      termsSnapshot: quotations.termsSnapshot,
+      validUntil: quotations.validUntil,
+      issuedAt: quotations.issuedAt,
+      createdAt: quotations.createdAt,
+      quoteRequestId: quotations.quoteRequestId,
+      businessName: customers.businessName,
+      contactName: customers.contactName,
+      email: customers.email,
+      phone: customers.phone,
+      gstin: customers.gstin,
+      customerId: customers.id
+    })
+    .from(quotations)
+    .innerJoin(customers, eq(quotations.customerId, customers.id))
+    .where(eq(quotations.id, id))
+    .limit(1);
+
+  if (!quotation[0]) return null;
+
+  const [items, address] = await Promise.all([
+    db
+      .select()
+      .from(quotationItems)
+      .where(eq(quotationItems.quotationId, id)),
+    db.query.customerAddresses.findFirst({
+      where: eq(customerAddresses.customerId, quotation[0].customerId)
+    })
+  ]);
+
+  return {
+    ...quotation[0],
+    items,
+    address: address
+      ? {
+          line1: address.line1,
+          line2: address.line2,
+          city: address.city,
+          state: address.state,
+          postalCode: address.postalCode,
+          country: address.country
+        }
+      : null
+  };
+}
+
 
 

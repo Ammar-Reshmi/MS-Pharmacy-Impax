@@ -7,20 +7,20 @@ import postgres from "postgres";
 import * as schema from "./schema";
 
 // Ensure environment variables from .env are available
-if (!process.env.DATABASE_URL) {
-  const envPath = path.resolve(process.cwd(), ".env");
-  if (fs.existsSync(envPath)) {
-    const envContent = fs.readFileSync(envPath, "utf-8");
-    for (const line of envContent.split("\n")) {
-      const trimmed = line.trim();
-      if (!trimmed || trimmed.startsWith("#")) continue;
-      const match = trimmed.match(/^([\w.-]+)\s*=\s*(.*)$/);
-      if (match) {
-        const key = match[1];
-        let val = match[2];
-        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
-          val = val.slice(1, -1);
-        }
+const envPath = path.resolve(process.cwd(), ".env");
+if (fs.existsSync(envPath)) {
+  const envContent = fs.readFileSync(envPath, "utf-8");
+  for (const line of envContent.split("\n")) {
+    const trimmed = line.trim();
+    if (!trimmed || trimmed.startsWith("#")) continue;
+    const match = trimmed.match(/^([\w.-]+)\s*=\s*(.*)$/);
+    if (match) {
+      const key = match[1];
+      let val = match[2];
+      if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
+        val = val.slice(1, -1);
+      }
+      if (process.env[key] === undefined) {
         process.env[key] = val;
       }
     }
@@ -55,47 +55,73 @@ async function seed() {
       });
     }
 
-    // 2. Seed Super Admin User
-    const adminEmail = "admin@mspharmaimpex.com";
+    // 2. Seed Super Admin User (configurable via SUPER_ADMIN_EMAIL and SUPER_ADMIN_PASSWORD)
+    const adminEmail = (process.env.SUPER_ADMIN_EMAIL || "admin@mspharmaimpex.com").trim().toLowerCase();
+    const adminPassword = process.env.SUPER_ADMIN_PASSWORD || "Admin@123456";
+    const adminName = process.env.SUPER_ADMIN_NAME || "MS Pharma Super Admin";
+    const adminPasswordHash = await hash(adminPassword);
+
     let admin = await db.query.staffUsers.findFirst({
       where: eq(schema.staffUsers.email, adminEmail)
     });
 
     if (!admin) {
-      console.log("Creating default super_admin account...");
-      const passwordHash = await hash("Admin@123456");
+      console.log(`Creating super_admin account: ${adminEmail}...`);
       const [newAdmin] = await db.insert(schema.staffUsers).values({
         email: adminEmail,
-        name: "MS Pharma Super Admin",
-        passwordHash,
+        name: adminName,
+        passwordHash: adminPasswordHash,
         role: "super_admin",
         active: true,
         emailVerifiedAt: new Date(),
         mfaEnabled: false
       }).returning();
       admin = newAdmin;
-      console.log(`Created admin user: ${adminEmail} (password: Admin@123456)`);
+      console.log(`Created admin user: ${adminEmail}`);
+    } else {
+      console.log(`Updating existing super_admin account: ${adminEmail}...`);
+      await db.update(schema.staffUsers).set({
+        name: adminName,
+        passwordHash: adminPasswordHash,
+        role: "super_admin",
+        active: true,
+        updatedAt: new Date()
+      }).where(eq(schema.staffUsers.id, admin.id));
+      console.log(`Updated admin user: ${adminEmail}`);
     }
 
-    // 3. Seed Sales Staff User
-    const salesEmail = "sales@mspharmaimpex.com";
+    // 3. Seed Sales Staff User (configurable via SALES_STAFF_EMAIL and SALES_STAFF_PASSWORD)
+    const salesEmail = (process.env.SALES_STAFF_EMAIL || "sales@mspharmaimpex.com").trim().toLowerCase();
+    const salesPassword = process.env.SALES_STAFF_PASSWORD || "Sales@123456";
+    const salesName = process.env.SALES_STAFF_NAME || "Commercial Sales Representative";
+    const salesPasswordHash = await hash(salesPassword);
+
     const existingSales = await db.query.staffUsers.findFirst({
       where: eq(schema.staffUsers.email, salesEmail)
     });
 
     if (!existingSales) {
-      console.log("Creating default sales account...");
-      const passwordHash = await hash("Sales@123456");
+      console.log(`Creating sales account: ${salesEmail}...`);
       await db.insert(schema.staffUsers).values({
         email: salesEmail,
-        name: "Commercial Sales Representative",
-        passwordHash,
+        name: salesName,
+        passwordHash: salesPasswordHash,
         role: "sales",
         active: true,
         emailVerifiedAt: new Date(),
         mfaEnabled: false
       });
-      console.log(`Created sales user: ${salesEmail} (password: Sales@123456)`);
+      console.log(`Created sales user: ${salesEmail}`);
+    } else {
+      console.log(`Updating existing sales account: ${salesEmail}...`);
+      await db.update(schema.staffUsers).set({
+        name: salesName,
+        passwordHash: salesPasswordHash,
+        role: "sales",
+        active: true,
+        updatedAt: new Date()
+      }).where(eq(schema.staffUsers.id, existingSales.id));
+      console.log(`Updated sales user: ${salesEmail}`);
     }
 
     // 4. Seed Categories

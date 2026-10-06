@@ -9,7 +9,20 @@ export const metadata: Metadata = {
   robots: { index: false, follow: false }
 };
 
-export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  return <html lang="en-IN"><body className="min-h-screen font-sans antialiased"><SiteHeader /><main>{children}</main><SiteFooter /></body></html>;
-}
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en-IN" data-scroll-behavior="smooth">
+      <body className="min-h-screen font-sans antialiased">
+        <SiteHeader />
 
+        <main>{children}</main>
+
+        <SiteFooter />
+      </body>
+    </html>
+  );
+}

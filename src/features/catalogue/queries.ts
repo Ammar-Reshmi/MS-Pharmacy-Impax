@@ -1,6 +1,6 @@
 import "server-only";
 
-import { and, asc, eq, ilike, or } from "drizzle-orm";
+import { and, asc, count, eq, ilike, or } from "drizzle-orm";
 import { getDb, isDatabaseConfigured } from "@/db";
 import { categories, medicinePrices, medicines } from "@/db/schema";
 
@@ -16,11 +16,37 @@ export type CatalogueMedicine = {
   packSize: string | null;
   prescriptionRequired: boolean;
   category: string | null;
+  categorySlug: string | null;
   unitPrice: string | null;
   gstRate: string | null;
 };
 
-export async function listPublishedMedicines(search?: string): Promise<CatalogueMedicine[]> {
+export type CatalogueCategory = {
+  id: string;
+  name: string;
+  slug: string;
+  medicineCount: number;
+};
+
+export async function listPublishedCategories(): Promise<CatalogueCategory[]> {
+  if (!isDatabaseConfigured()) return [];
+  const db = getDb();
+  const rows = await db
+    .select({
+      id: categories.id,
+      name: categories.name,
+      slug: categories.slug,
+      medicineCount: count(medicines.id)
+    })
+    .from(categories)
+    .innerJoin(medicines, and(eq(medicines.categoryId, categories.id), eq(medicines.status, "published")))
+    .where(eq(categories.active, true))
+    .groupBy(categories.id)
+    .orderBy(asc(categories.name));
+  return rows;
+}
+
+export async function listPublishedMedicines(search?: string, categorySlug?: string): Promise<CatalogueMedicine[]> {
   if (!isDatabaseConfigured()) return [];
   const db = getDb();
   const searchTerm = search?.trim();
@@ -34,6 +60,9 @@ export async function listPublishedMedicines(search?: string): Promise<Catalogue
       ilike(medicines.strength, pattern)
     )!);
   }
+  if (categorySlug) {
+    filters.push(eq(categories.slug, categorySlug));
+  }
   return db.select({
     id: medicines.id,
     slug: medicines.slug,
@@ -46,6 +75,7 @@ export async function listPublishedMedicines(search?: string): Promise<Catalogue
     packSize: medicines.packSize,
     prescriptionRequired: medicines.prescriptionRequired,
     category: categories.name,
+    categorySlug: categories.slug,
     unitPrice: medicinePrices.unitPrice,
     gstRate: medicinePrices.gstRate
   }).from(medicines)

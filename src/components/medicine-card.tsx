@@ -2,11 +2,73 @@ import Link from "next/link";
 import { ArrowUpRight, BadgeIndianRupee, Pill } from "lucide-react";
 import type { CatalogueMedicine } from "@/features/catalogue/queries";
 import { formatInr } from "@/lib/money";
+import { AddToCartButton } from "@/components/quote-cart";
 
 export function MedicineCard({ medicine }: { medicine: CatalogueMedicine }) {
-  return <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-950/5">
-    <div className="relative grid h-44 place-items-center overflow-hidden bg-gradient-to-br from-teal-50 via-white to-blue-50"><Pill size={46} strokeWidth={1.25} className="text-teal-700" /><span className="absolute left-4 top-4 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-800 shadow-sm">{medicine.dosageForm ?? "Medicine"}</span>{medicine.prescriptionRequired && <span className="absolute right-4 top-4 rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-100">Rx</span>}</div>
-    <div className="flex flex-1 flex-col p-5"><p className="text-xs font-semibold text-teal-700">{medicine.category ?? "Pharmaceutical product"}</p><h2 className="mt-2 font-serif text-xl font-bold leading-tight text-blue-950">{medicine.productName}</h2><p className="mt-2 text-sm text-slate-600">{medicine.genericName ? `Generic: ${medicine.genericName}` : "Generic information available on request"}</p><dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-y border-slate-100 py-4 text-xs"><div><dt className="text-slate-400">Strength</dt><dd className="mt-0.5 font-semibold text-slate-700">{medicine.strength ?? "—"}</dd></div><div><dt className="text-slate-400">Pack size</dt><dd className="mt-0.5 font-semibold text-slate-700">{medicine.packSize ?? "—"}</dd></div></dl><div className="mt-5 flex items-end justify-between gap-3"><div><p className="text-[11px] font-medium text-slate-400">Public catalogue price</p><p className="mt-1 flex items-center gap-0.5 text-xl font-bold text-teal-800"><BadgeIndianRupee size={17} />{medicine.unitPrice ? formatInr(Number(medicine.unitPrice)).replace("₹", "") : "Price on request"}</p></div><Link href={`/catalogue/${medicine.slug}`} className="grid size-10 place-items-center rounded-xl border border-slate-200 text-blue-950 transition hover:border-teal-700 hover:bg-teal-700 hover:text-white" aria-label={`View ${medicine.productName}`}><ArrowUpRight size={18} /></Link></div></div>
-  </article>;
-}
+  return (
+    <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-xl hover:shadow-blue-950/5">
+      <div className="relative grid h-44 place-items-center overflow-hidden bg-gradient-to-br from-teal-50 via-white to-blue-50">
+        <Pill size={46} strokeWidth={1.25} className="text-teal-700" />
+        <span className="absolute left-4 top-4 rounded-full bg-white px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-teal-800 shadow-sm">
+          {medicine.dosageForm ?? "Medicine"}
+        </span>
+        {medicine.prescriptionRequired && (
+          <span className="absolute right-4 top-4 rounded-full bg-red-50 px-2.5 py-1 text-[10px] font-bold uppercase tracking-wider text-red-700 ring-1 ring-red-100">
+            Rx
+          </span>
+        )}
+      </div>
 
+      <div className="flex flex-1 flex-col p-5">
+        <p className="text-xs font-semibold text-teal-700">
+          {medicine.category ?? "Pharmaceutical product"}
+        </p>
+        <h2 className="mt-2 font-serif text-xl font-bold leading-tight text-blue-950">
+          {medicine.productName}
+        </h2>
+        <p className="mt-2 text-sm text-slate-600">
+          {medicine.genericName
+            ? `Generic: ${medicine.genericName}`
+            : "Generic information available on request"}
+        </p>
+
+        <dl className="mt-5 grid grid-cols-2 gap-x-4 gap-y-3 border-y border-slate-100 py-4 text-xs">
+          <div>
+            <dt className="text-slate-400">Strength</dt>
+            <dd className="mt-0.5 font-semibold text-slate-700">{medicine.strength ?? "—"}</dd>
+          </div>
+          <div>
+            <dt className="text-slate-400">Pack size</dt>
+            <dd className="mt-0.5 font-semibold text-slate-700">{medicine.packSize ?? "—"}</dd>
+          </div>
+        </dl>
+
+        <div className="mt-auto pt-4">
+          <div className="flex items-end justify-between gap-3">
+            <div>
+              <p className="text-[11px] font-medium text-slate-400">Public catalogue price</p>
+              <p className="mt-1 flex items-center gap-0.5 text-xl font-bold text-teal-800">
+                <BadgeIndianRupee size={17} />
+                {medicine.unitPrice
+                  ? formatInr(Number(medicine.unitPrice)).replace("₹", "")
+                  : "Price on request"}
+              </p>
+            </div>
+            <Link
+              href={`/catalogue/${medicine.slug}`}
+              className="grid size-10 place-items-center rounded-xl border border-slate-200 text-blue-950 transition hover:border-teal-700 hover:bg-teal-700 hover:text-white"
+              aria-label={`View ${medicine.productName}`}
+            >
+              <ArrowUpRight size={18} />
+            </Link>
+          </div>
+
+          {/* Add to quote cart button */}
+          <div className="mt-3">
+            <AddToCartButton medicineId={medicine.id} />
+          </div>
+        </div>
+      </div>
+    </article>
+  );
+}
